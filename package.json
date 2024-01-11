@@ -1,0 +1,14 @@
+{
+  "name": "libraryManage",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "pnpm recursive --filter library-front run dev",
+    "build": "pnpm recursive --filter library-front run build",
+    "serve": "pnpm recursive --filter library-node run dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
