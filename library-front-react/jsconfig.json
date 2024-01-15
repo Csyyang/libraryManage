@@ -1,0 +1,15 @@
+// jsconfig.json
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@/*": [
+                "src/*"
+            ],
+            "@/api/*": [
+                "src/api/*"
+            ]
+            // 可根据你的别名设置添加更多路径映射
+        }
+    }
+}
