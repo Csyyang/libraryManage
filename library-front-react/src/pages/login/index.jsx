@@ -1,10 +1,16 @@
-import styles from './index.module.css'
-import { Card, Button, Form, Input } from 'antd'
-import { login, admLogin } from '@/api/login'
-import { useState, useCallback } from 'react'
-import { useMemo } from 'react'
+import styles from './index.module.css';
+import { Card, Button, Form, Input } from 'antd';
+import { login, admLogin } from '@/api/login';
+import { useState, useCallback } from 'react';
+import { useMemo } from 'react';
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from 'react-redux'
+import {  changeLoginState, changeAdminState } from '@/store/user'
+
 
 const Login = () => {
+
+    const dispatch = useDispatch()
 
     const users = useMemo(() => [
         {
@@ -25,11 +31,17 @@ const Login = () => {
     }, [])
 
 
-
+    const navigate = useNavigate()
     const onFinish = useCallback(async (val) => {
         const res = await users[status].fetch(val);
+        dispatch(changeLoginState(true))
+
+        if(res.data.isAdmin) {
+            dispatch(changeAdminState(true))
+        }
+        navigate('/book/bookList')
         console.log(res);
-    }, [users, status])
+    }, [users, status, dispatch, navigate])
 
     return (
         <div className={styles.center}>
@@ -48,6 +60,10 @@ const Login = () => {
                     }}
                     onFinish={onFinish}
                     autoComplete="off"
+                    initialValues={{
+                        username: 'root',
+                        password: 'root'
+                    }}
                 >
                     <Form.Item
                         label="用户名"

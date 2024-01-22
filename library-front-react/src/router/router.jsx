@@ -4,11 +4,12 @@ import Layout from '@/components/Layout'
 import BookList from "@/pages/book/bookList";
 import { Navigate } from "react-router-dom";
 import { LaptopOutlined, NotificationOutlined } from '@ant-design/icons';
+import BeforeEach from './beforEach'
 
 export default [
     {
         path: '/',
-        element: <Navigate to='/book' />,
+        element: <Navigate to='/book/bookList' />,
         meta: {
             showMenu: false,
         }
@@ -23,7 +24,7 @@ export default [
         children: [
             {
                 path: "bookList",
-                element: <BookList />,
+                element: <BeforeEach render={BookList} />,
                 meta: {
                     name: '图书列表',
                 }

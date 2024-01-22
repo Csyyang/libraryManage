@@ -28,13 +28,18 @@ instance.interceptors.response.use(
     // 对响应数据做些什么
     const data = response.data
 
+    if (data.code === '00') {
+      return data
+    }
+
     if (data.code === '01') {
       message.info(JSON.stringify(data.msg))
     }
-    return response;
+    throw response;
   },
   error => {
     // 对响应错误做些什么
+    console.log('捕获')
     console.error('Response Interceptor Error:', error);
     return Promise.reject(error);
   }

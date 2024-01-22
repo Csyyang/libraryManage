@@ -71,8 +71,8 @@ const App = () => {
                 >
                     <Menu
                         mode="inline"
-                        defaultSelectedKeys={['1']}
-                        defaultOpenKeys={['sub1']}
+                        defaultSelectedKeys={['/book/bookList']}
+                        defaultOpenKeys={['/book']}
                         style={{
                             height: '100%',
                             borderRight: 0,
