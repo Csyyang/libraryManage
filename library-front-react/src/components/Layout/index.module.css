@@ -1,0 +1,9 @@
+.logo {
+    color: #fff;
+    position: relative;
+    left: -22px;
+}
+
+.Layout {
+    height: calc(100vh - 64px);
+}
