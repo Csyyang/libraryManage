@@ -35,7 +35,7 @@ const Login = () => {
     const onFinish = useCallback(async (val) => {
         const res = await users[status].fetch(val);
         dispatch(changeLoginState(true))
-
+        
         if(res.data.isAdmin) {
             dispatch(changeAdminState(true))
         }
