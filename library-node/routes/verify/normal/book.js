@@ -32,7 +32,7 @@ router.get('/allBook', [
 
     try {
         const sql = `
-    SELECT books.book_id AS 'key', books.title, books.author,books.publisher, books.isbn, books.category_id, book_inventory.quantity,categories.category_name
+    SELECT books.book_id AS 'key', books.title, books.author,books.publisher, books.isbn, books.category_id, book_inventory.remaining,categories.category_name
     FROM books
     LEFT JOIN 
     book_inventory ON books.book_id = book_inventory.book_id

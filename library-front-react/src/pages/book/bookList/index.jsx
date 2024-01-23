@@ -89,6 +89,13 @@ const Tables = (props) => {
             dataIndex: 'publisher',
             key: 'publisher',
         },
+        {
+            title: '操作',
+            key: '操作',
+            render: (_, record) => {
+                return <Button type="link">Link Button</Button>
+            }
+        }
     ];
 
 
@@ -118,10 +125,10 @@ const BookList = () => {
         page: 1
     })
     const [total, setTotal] = useState(0)
-    const changePageSize = ({current}) => {
+    const changePageSize = ({ current }) => {
         setPaging((prew) => {
             prew.page = current
-            return {...prew}
+            return { ...prew }
         })
     }
 

@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { message } from 'antd';
+import { redirect } from "react-router-dom";
 
 // 创建 Axios 实例
 const instance = axios.create({
@@ -34,13 +35,16 @@ instance.interceptors.response.use(
 
     if (data.code === '01') {
       message.info(JSON.stringify(data.msg))
+
     }
     throw response;
   },
   error => {
     // 对响应错误做些什么
     console.log('捕获')
-    console.error('Response Interceptor Error:', error);
+    if (error.response.data.errors === "未登录") {
+      window.location.replace ("/login") 
+    }
     return Promise.reject(error);
   }
 );
