@@ -15,10 +15,12 @@ router.get('/allBook', [
         return response(errors.array(), res, '01')
     }
     const resObj = {}
+    const title = req.query.title || ''
+
     // --获取总记录数
-    const sqlAll = `SELECT COUNT(*) as 'all' FROM books;`
+    const sqlAll = `SELECT COUNT(*) as 'all' FROM books ${title ? 'WHERE title LIKE ?' : ''};`
     try {
-        const [result, _] = await conn.query(sqlAll)
+        const [result, _] = await conn.query(sqlAll, title ? [`%${title}%`] : [])
         // const all = await conn.query(sqlAll)
         console.log(result)
         resObj.all = result[0].all
@@ -36,10 +38,11 @@ router.get('/allBook', [
     book_inventory ON books.book_id = book_inventory.book_id
     LEFT JOIN
     book_categories AS categories ON books.category_id = categories.category_id
+    ${title ? ' WHERE books.title LIKE ?' : ''}
     LIMIT ? OFFSET ?;`
         const page = req.query.page;
         const size = req.query.size;
-        const [sqlList] = await conn.query(sql, [parseInt(size), parseInt(page - 1)]);
+        const [sqlList] = await conn.query(sql, title ? [`%${title}%`, parseInt(size), parseInt(page - 1)] : [parseInt(size), parseInt(page - 1)]);
         resObj.list = sqlList
         response(resObj, res)
     } catch (error) {
@@ -131,7 +134,7 @@ router.post('/returnApply', [
         const [result] = await conn.query(sql, [req.body.record_id])
         console.log(result.affectedRows)
 
-        if(result.affectedRows > 0) {
+        if (result.affectedRows > 0) {
             response('发起成功', res)
         } else {
             response('参数异常', res, '01')
