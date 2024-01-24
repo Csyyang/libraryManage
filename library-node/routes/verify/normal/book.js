@@ -145,4 +145,41 @@ router.post('/returnApply', [
         return
     }
 })
+
+// 查询个人借书记录
+router.get('/personBorrowed', [
+    query('size').isInt().withMessage('size格式错误'),
+    query('page').isInt().withMessage('page格式错误'),
+], async (req, res) => {
+    // 参数校验
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return response(errors.array(), res, '01')
+    }
+    const resObj = {}
+    const title = req.query.title || ''
+
+    try {
+        const sql = `SELECT borrow_records.record_id, borrow_records.reader_id, borrow_records.book_id, 
+        DATE_FORMAT(borrow_records.borrow_date, '%Y-%m-%d') AS borrow_date,
+        DATE_FORMAT(borrow_records.return_date, '%Y-%m-%d') AS return_date,
+        borrow_records.status,
+        books.title, readers.name 
+     FROM borrow_records
+     JOIN books ON borrow_records.book_id = books.book_id
+     JOIN readers ON borrow_records.reader_id = readers.reader_id
+     ${title ? ' WHERE books.title LIKE ?' : ''}
+     LIMIT ? OFFSET ?;`;
+        const page = req.query.page;
+        const size = req.query.size;
+        const [sqlList] = await conn.query(sql, title ? [`%${title}%`, parseInt(size), parseInt(page - 1)] : [parseInt(size), parseInt(page - 1)]);
+        resObj.list = sqlList
+        response(resObj, res)
+    } catch (error) {
+        console.log(error);
+        response(error, res, '01')
+        return
+    }
+})
+
 module.exports = router
