@@ -1,6 +1,5 @@
 import axios from 'axios'
 import { message } from 'antd';
-import { redirect } from "react-router-dom";
 
 // 创建 Axios 实例
 const instance = axios.create({

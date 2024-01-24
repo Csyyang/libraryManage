@@ -98,8 +98,10 @@ const App = () => {
                             padding: 24,
                             margin: 0,
                             minHeight: 280,
+                            height: 'calc(100vh - 240px)',
                             background: colorBgContainer,
                             borderRadius: borderRadiusLG,
+                            overflowY: 'auto'
                         }}
                     >
                         <Outlet />

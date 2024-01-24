@@ -2,6 +2,7 @@
 import Login from "@/pages/login";
 import Layout from '@/components/Layout'
 import BookList from "@/pages/book/bookList";
+import BorrowedBooks from "@/pages/book/borrowedBooks";
 import { Navigate } from "react-router-dom";
 import { LaptopOutlined, NotificationOutlined } from '@ant-design/icons';
 import BeforeEach from './beforEach'
@@ -30,10 +31,10 @@ export default [
                 }
             },
             {
-                path: 'test',
-                element: <div>图书馆测试</div>,
+                path: 'BorrowedBooks',
+                element: <BeforeEach render={BorrowedBooks} />,
                 meta: {
-                    name: 'ttttt'
+                    name: '我的借书'
                 }
             }
         ]

@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
-import { Button, Form, Input, Table, Divider } from 'antd';
-import { getBookList } from '@/api/book'
+import { Button, Form, Input, Table, Divider, Modal, DatePicker, message } from 'antd';
+import { getBookList, borrowing } from '@/api/book'
 import { useEffect, useCallback } from 'react';
 
 // 搜索表单
@@ -52,9 +52,6 @@ const SearchForm = (props) => {
         </Form>
     );
 };
-
-
-
 // table
 const Tables = (props) => {
 
@@ -90,10 +87,19 @@ const Tables = (props) => {
             key: 'publisher',
         },
         {
+            title: '库存',
+            dataIndex: 'remaining',
+            key: 'remaining',
+        },
+        {
             title: '操作',
             key: '操作',
-            render: (_, record) => {
-                return <Button type="link">Link Button</Button>
+            render: (_, columns) => {
+                console.log(columns)
+                return <Button type="link" onClick={() => {
+                    props.changChosed(columns.key)
+                    props.setIsModalOpen(true)
+                }}>借出</Button>
             }
         }
     ];
@@ -101,6 +107,86 @@ const Tables = (props) => {
 
     return <Table dataSource={dataSource} columns={columns} pagination={{ total: total, pageSize: 10 }} onChange={props.onPageChange}
     />;
+}
+// model 
+const SendModal = ({ isModalOpen, setIsModalOpen, chosed, init }) => {
+    const [form] = Form.useForm();
+
+    const handleOk = async () => {
+        const { borrow_date, return_date } = form.getFieldsValue();
+
+        await borrowing({
+            book_id: chosed,
+            borrow_date: borrow_date.format('YYYY-MM-DD'),
+            return_date: return_date.format('YYYY-MM-DD')
+        })
+
+        message.success('预约成功，请等待审核')
+        setIsModalOpen(false)
+        form.resetFields()
+        init()
+    }
+
+    const handleCancel = () => {
+        setIsModalOpen(false)
+    }
+
+    const onFinish = (values) => {
+        console.log('Success:', values);
+    };
+    const onFinishFailed = (errorInfo) => {
+        console.log('Failed:', errorInfo);
+    };
+
+
+    return (
+        <Modal title="Basic Modal" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+            <Form
+                form={form}
+                name="basic"
+                labelCol={{
+                    span: 8,
+                }}
+                wrapperCol={{
+                    span: 16,
+                }}
+                style={{
+                    maxWidth: 600,
+                }}
+                initialValues={{
+                    remember: true,
+                }}
+                onFinish={onFinish}
+                onFinishFailed={onFinishFailed}
+                autoComplete="off"
+            >
+                <Form.Item
+                    label="借阅日期"
+                    name="borrow_date"
+                    rules={[
+                        {
+                            required: true,
+                            message: '请选择',
+                        },
+                    ]}
+                >
+                    <DatePicker allowClear format="YYYY-MM-DD" />
+                </Form.Item>
+
+                <Form.Item
+                    label="归还日期"
+                    name="return_date"
+                    rules={[
+                        {
+                            required: true,
+                            message: '请选择',
+                        },
+                    ]}
+                >
+                    <DatePicker allowClear />
+                </Form.Item>
+            </Form>
+        </Modal>)
 }
 
 const BookList = () => {
@@ -146,11 +232,17 @@ const BookList = () => {
         getTableListFetch(form.getFieldsValue(), paging)
     }, [paging])
 
+    const [isModalOpen, setIsModalOpen] = useState(false)
+
+    const [chosed, changChosed] = useState(null)
+
+
     return (
         <>
             <SearchForm form={form} onSearch={onSearch} />
             <Divider />
-            <Tables dataSource={dataSource} total={total} onPageChange={changePageSize} />
+            <Tables dataSource={dataSource} total={total} onPageChange={changePageSize} setIsModalOpen={setIsModalOpen} changChosed={changChosed} />
+            <SendModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} chosed={chosed} init={init} />
         </>
     )
 }
