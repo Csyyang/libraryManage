@@ -117,6 +117,45 @@ router.post('/borrowing', [
     }
 });
 
+// 预约还书
+router.post('/returnedQ', [
+    body('record_id').notEmpty().withMessage('record_id不能为空'),
+], async (req, res, next) => {
+    // 参数校验
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return response(errors.array(), res, '01')
+    }
+
+    const body = req.body
+    const connection = await conn.getConnection();
+    try {
+        // 开始事务
+        await connection.beginTransaction();
+
+        await connection.query(
+            `UPDATE borrow_records SET status = 'returnedQ' WHERE record_id =  ${body.record_id}`
+        );
+
+        // await connection.query(
+        //     `UPDATE book_inventory SET lend = lend - 1,remaining = quantity - lend  WHERE book_id =  ${body.book_id}`
+        // );
+        response('归还预约成功', res)
+
+        // 提交事务
+        await connection.commit();
+    } catch (error) {
+        console.log('error')
+        console.log(error)
+        // 出现错误时回滚事务
+        await connection.rollback();
+        response(error.toString(), res, '01')
+    } finally {
+        // 释放连接
+        connection.release();
+    }
+});
+
 // 发起图书归还
 router.post('/returnApply', [
     body('record_id').notEmpty().withMessage('参数异常')
@@ -160,7 +199,7 @@ router.get('/personBorrowed', [
     const title = req.query.title || ''
 
     try {
-        const sql = `SELECT borrow_records.record_id, borrow_records.reader_id, borrow_records.book_id, 
+        const sql = `SELECT borrow_records.record_id AS 'key', borrow_records.record_id, borrow_records.reader_id, borrow_records.book_id, 
         DATE_FORMAT(borrow_records.borrow_date, '%Y-%m-%d') AS borrow_date,
         DATE_FORMAT(borrow_records.return_date, '%Y-%m-%d') AS return_date,
         borrow_records.status,

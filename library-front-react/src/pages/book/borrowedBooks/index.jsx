@@ -1,6 +1,7 @@
-import { Button, Form, Input, Table, Divider, Tag} from 'antd';
+import { Button, Form, Input, Table, Divider, Tag, Popconfirm } from 'antd';
 import { useState, useEffect } from 'react';
-import { borrowRecord } from '@/api/book'
+import { borrowRecord, returnedQ } from '@/api/book'
+import { message } from 'antd';
 
 const SearchForm = ({ title, setTitle, setDataSource, paging, setPaging, setTotal }) => {
 
@@ -20,7 +21,7 @@ const SearchForm = ({ title, setTitle, setDataSource, paging, setPaging, setTota
             ...paging,
             title
         })
-        setDataSource(prevDataSource => prevDataSource.concat(res.data.list))
+        setDataSource(res.data.list)
         setTotal(res.data.all)
         setPaging(prevDataSource => {
             prevDataSource.size++
@@ -47,7 +48,22 @@ const SearchForm = ({ title, setTitle, setDataSource, paging, setPaging, setTota
     );
 }
 
-const Tables = ({ dataSource, total, setPaging }) => {
+const Tables = ({ dataSource, total, setPaging, setTotal }) => {
+
+    const returnBook = async (record_id) => {
+        await returnedQ({
+            record_id
+        })
+
+        message.success('预约成功')
+
+        setPaging({
+            size: 10,
+            page: 1
+        })
+
+        setTotal(0)
+    }
 
     const columns = [
         {
@@ -75,12 +91,11 @@ const Tables = ({ dataSource, total, setPaging }) => {
             dataIndex: 'status',
             key: 'status',
             render: (_, tags) => {
-                console.log(tags)
                 switch (tags.status) {
                     case 'borrowed':
                         return <Tag key={tags.key} color="gold">待归还</Tag>
                     case 'borrowedQ':
-                        return <Tag key={tags.key}color="orange">借阅审核中</Tag>
+                        return <Tag key={tags.key} color="orange">借阅审核中</Tag>
                     case 'returned':
                         return <Tag key={tags.key} color="cyan">已归还</Tag>
                     case 'returnedQ':
@@ -92,11 +107,21 @@ const Tables = ({ dataSource, total, setPaging }) => {
         {
             title: '操作',
             key: '操作',
-            render: () => {
-                return <Button type="link" onClick={() => {
-                    // props.changChosed(columns.key)
-                    // props.setIsModalOpen(true)
-                }}>借出</Button>
+            render: (_, { status, record_id }) => {
+                return (
+                    <>
+                        {status === 'borrowed' && <Popconfirm
+                            placement="top"
+                            title="提示"
+                            description="确认发起归还申请？"
+                            okText="是"
+                            cancelText="否"
+                            onConfirm={() => returnBook(record_id)}
+                        >
+                            <Button type="link">归还申请</Button>
+                        </Popconfirm>}
+                    </>
+                )
             }
         }
     ];
@@ -127,7 +152,7 @@ const BorrowedBooks = () => {
         <>
             <SearchForm title={title} setTitle={setTitle} setDataSource={setDataSource} paging={paging} setPaging={setPaging} setTotal={setTotal} />
             <Divider />
-            <Tables dataSource={dataSource} total={total} setPaging={setPaging} />
+            <Tables dataSource={dataSource} total={total} setPaging={setPaging} setTotal={setTotal} />
         </>
     )
 }

@@ -20,3 +20,6 @@ export const borrowRecordQ = (data = {}) => request.get('verify/admin/book/borro
 
 // 同意借阅
 export const borrowConfirm = (data = {}) => request.post('/verify/admin/book/borrowConfirm', data)
+
+// 预约还书
+export const returnedQ = (data = {}) => request.post('/verify/book/returnedQ', data)
