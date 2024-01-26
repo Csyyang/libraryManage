@@ -18,7 +18,7 @@ export const counterSlice = createSlice({
     reducers: {
         changeLoginState(state, action) {
             state.isLogin = action.payload;
-            sessionStorage.setItem('isLogin', true)
+            sessionStorage.setItem('isLogin', action.payload)
         },
         changeAdminState(state, action) {
             state.isAdmin = action.payload;

@@ -39,7 +39,7 @@ const Login = () => {
         if(res.data.isAdmin) {
             dispatch(changeAdminState(true))
         }
-        navigate('/book/bookList')
+        navigate('/')
         console.log(res);
     }, [users, status, dispatch, navigate])
 

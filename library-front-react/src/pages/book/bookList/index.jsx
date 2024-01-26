@@ -95,7 +95,6 @@ const Tables = (props) => {
             title: '操作',
             key: '操作',
             render: (_, columns) => {
-                console.log(columns)
                 return <Button type="link" onClick={() => {
                     props.changChosed(columns.key)
                     props.setIsModalOpen(true)
