@@ -3,14 +3,15 @@ import Login from "@/pages/login";
 import Layout from '@/components/Layout'
 import BookList from "@/pages/book/bookList";
 import BorrowedBooks from "@/pages/book/borrowedBooks";
-import { Navigate } from "react-router-dom";
 import { LaptopOutlined, NotificationOutlined } from '@ant-design/icons';
 import BeforeEach from './beforEach'
+import Redirect from "./redirect";
+import BorrowedQ from "@/pages/book/borrowedQ";
 
 export default [
     {
         path: '/',
-        element: <Navigate to='/book/bookList' />,
+        element: <Redirect />,
         meta: {
             showMenu: false,
         }
@@ -40,18 +41,44 @@ export default [
         ]
     },
     {
+        path: '/examine',
+        element: <Layout />,
+        meta: {
+            name: '审核',
+            isAdmin: true,
+            icon: NotificationOutlined,
+        },
+        children: [
+            {
+                path: 'borrowed',
+                element: <BeforeEach render={BorrowedQ} />,
+                meta: {
+                    name: '借阅',
+                }
+            }, {
+                path: 'returened',
+                element: <div>归还</div>,
+                meta: {
+                    name: '归还',
+                }
+            }
+        ]
+
+    },
+    {
         path: '/test',
         element: <Layout />,
         meta: {
             name: '测试',
-            icon: NotificationOutlined
+            icon: NotificationOutlined,
+            isAdmin: true
         },
         children: [
             {
                 path: 'testChild',
                 element: <div>test</div>,
                 meta: {
-                    name: '测试1'
+                    name: '测试1',
                 }
             }
         ]

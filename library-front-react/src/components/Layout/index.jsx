@@ -1,19 +1,26 @@
 import { UserOutlined } from '@ant-design/icons';
-import { Breadcrumb, Layout, Menu, theme, Avatar } from 'antd';
+import { Breadcrumb, Layout, Menu, theme, Avatar, Dropdown, Button } from 'antd';
 const { Header, Content, Sider } = Layout;
 import styles from './index.module.css'
 import routes from '@/router/router'
 import React, { useMemo, useCallback } from 'react';
 import { useNavigate, Outlet } from "react-router-dom"
 import { useLocation } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux'
+import clearCookie from '@/util/clearnCookie';
+import { loginOut } from '@/api/login'
+import { changeLoginState, changeAdminState } from '@/store/user'
+
 
 const App = () => {
     const {
         token: { colorBgContainer, borderRadiusLG },
     } = theme.useToken();
 
+    const isAdmin = useSelector((state) => state.user.isAdmin)
+
     const siderArr = useMemo(() => {
-        const sortArr = routes.filter(item => item.meta.showMenu !== false && item.children.length >= 1)
+        const sortArr = routes.filter(item => item.meta.showMenu !== false && item.children.length >= 1 && Boolean(item.meta.isAdmin) === JSON.parse(isAdmin))
         const arr = sortArr.map(item => {
             if (item.children.length === 1) {
                 return {
@@ -38,6 +45,7 @@ const App = () => {
 
 
     const location = useLocation()
+    const defaultSelectedKeys = location.pathname
     const historyList = useMemo(() => {
         return location.pathname.split('/').filter(item => Boolean(item)).map(item => ({ title: item }))
     }, [location])
@@ -46,6 +54,28 @@ const App = () => {
     const Jump = useCallback((e) => {
         navigate(e.key);
     }, [navigate])
+
+
+    const dispatch = useDispatch()
+    const cleanLogin = async () => {
+        await loginOut()
+        clearCookie('connect.sid')
+        dispatch(changeLoginState(false))
+        dispatch(changeAdminState(false))
+        navigate('/login')
+    }
+
+    const items = [
+        {
+            key: '1',
+            label: (
+                <Button onClick={cleanLogin} type="link">登出</Button>
+            ),
+        },
+    ]
+
+
+
 
     return (
         <Layout>
@@ -58,7 +88,15 @@ const App = () => {
                 }}
             >
                 <div className={styles.logo}>图书管理系统</div>
-                <Avatar style={{ backgroundColor: '#87d068', cursor: 'pointer' }} size={32} icon={<UserOutlined />} />
+
+                <Dropdown
+                    menu={{
+                        items,
+                    }}
+                    placement="bottom"
+                >
+                    <Avatar style={{ backgroundColor: '#87d068', cursor: 'pointer' }} size={32} icon={<UserOutlined />} />
+                </Dropdown>
             </Header>
 
             <Layout className={styles.Layout}>
@@ -71,7 +109,7 @@ const App = () => {
                 >
                     <Menu
                         mode="inline"
-                        defaultSelectedKeys={['/book/bookList']}
+                        defaultSelectedKeys={[defaultSelectedKeys]}
                         defaultOpenKeys={['/book']}
                         style={{
                             height: '100%',

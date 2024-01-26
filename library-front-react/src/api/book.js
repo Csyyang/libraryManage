@@ -12,3 +12,8 @@ export const borrowing = (data = {}) => request.post('/verify/book/borrowing', d
 export const borrowRecord = (data = {}) => request.get('/verify/book/personBorrowed', {
     params: data
 })
+
+// 借阅审核列表
+export const borrowRecordQ = (data = {}) => request.get('verify/admin/book/borrowConfirmList', {
+    params: data
+})

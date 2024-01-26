@@ -9,7 +9,7 @@ import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
     isLogin: window.sessionStorage.getItem('isLogin') ? sessionStorage.getItem('isLogin') : false,
-    isAdmin: window.sessionStorage.getItem('isAdmin')? sessionStorage.getItem('isAdmin') : false
+    isAdmin: window.sessionStorage.getItem('isAdmin') ? sessionStorage.getItem('isAdmin') : false
 }
 
 export const counterSlice = createSlice({
@@ -22,7 +22,7 @@ export const counterSlice = createSlice({
         },
         changeAdminState(state, action) {
             state.isAdmin = action.payload;
-            sessionStorage.setItem('isAdmin', true)
+            sessionStorage.setItem('isAdmin', action.payload)
 
         }
     },

@@ -1,4 +1,4 @@
-import { Button, Form, Input, Table, Divider, Tag, Modal, DatePicker, message } from 'antd';
+import { Button, Form, Input, Table, Divider, Tag} from 'antd';
 import { useState, useEffect } from 'react';
 import { borrowRecord } from '@/api/book'
 
@@ -95,8 +95,8 @@ const Tables = ({ dataSource, total, setPaging }) => {
             render: (_, columns) => {
                 console.log(columns)
                 return <Button type="link" onClick={() => {
-                    props.changChosed(columns.key)
-                    props.setIsModalOpen(true)
+                    // props.changChosed(columns.key)
+                    // props.setIsModalOpen(true)
                 }}>借出</Button>
             }
         }
