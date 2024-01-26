@@ -1,7 +1,7 @@
-import { borrowRecordQ } from "@/api/book"
+import { borrowRecordQ, borrowConfirm } from "@/api/book"
 import { useState } from "react"
 import { useEffect } from "react"
-import { Table } from 'antd'
+import { Table, Button, message } from 'antd'
 
 
 const BorrowedQ = () => {
@@ -21,10 +21,25 @@ const BorrowedQ = () => {
             return obj
         })
     }
-    
+
     const getList = async () => {
         const res = await borrowRecordQ(page)
         setList(res.data.lists)
+    }
+
+    const aggre = async ({ record_id }) => {
+        console.log(columns)
+        await borrowConfirm({
+            record_id
+        })
+        message.success('操作成功')
+
+        setPage({
+            total: 0,
+            size: 10,
+            page: 1
+        })
+
     }
 
     const columns = [
@@ -48,12 +63,27 @@ const BorrowedQ = () => {
             dataIndex: 'return_date',
             key: 'return_date',
         },
+        {
+            title: '操作',
+            key: '操作',
+            render: (_, columns) => {
+                return (
+                    <div>
+                        <Button type="link" onClick={() => aggre(columns)}>同意</Button>
+                        <Button type="link" onClick={() => {
+                            // props.changChosed(columns.key)
+                            // props.setIsModalOpen(true)
+                        }}>拒绝</Button>
+                    </div>
+                )
+            }
+        }
     ]
 
 
     useEffect(() => {
         getList()
-    }, [])
+    }, [page])
 
     return (
         <Table dataSource={list} columns={columns} pagination={{ total: page.total, pageSize: page.size }} onChange={onPageChange} />

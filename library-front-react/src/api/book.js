@@ -17,3 +17,6 @@ export const borrowRecord = (data = {}) => request.get('/verify/book/personBorro
 export const borrowRecordQ = (data = {}) => request.get('verify/admin/book/borrowConfirmList', {
     params: data
 })
+
+// 同意借阅
+export const borrowConfirm = (data = {}) => request.post('/verify/admin/book/borrowConfirm', data)
