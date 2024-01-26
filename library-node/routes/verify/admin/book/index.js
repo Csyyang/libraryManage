@@ -198,11 +198,38 @@ router.get('/returnConfirmList', [
         return response(errors.array(), res, '01')
     }
 
-    const sql = `SELECT * FROM borrow_records WHERE status = 'returnedQ'`
-
+    const obj = {
+        total: 0,
+        lists: []
+    }
     try {
-        const [result] = await conn.query(sql)
-        response(result, res)
+        const totalSql = `SELECT COUNT(*) as total FROM borrow_records WHERE borrow_records.status = 'borrowedQ'`
+        const [result] = await conn.query(totalSql)
+
+        obj.total = result[0].total
+    } catch (error) {
+        console.log(error);
+        response(error, res, '01')
+        return
+    }
+
+    const sql = `SELECT  borrow_records.record_id AS 'key',
+    borrow_records.*,
+    DATE_FORMAT(borrow_records.borrow_date, '%Y-%m-%d') AS borrow_date,
+    DATE_FORMAT(borrow_records.return_date, '%Y-%m-%d') AS return_date,
+    books.title, readers.name
+    FROM borrow_records
+    JOIN books ON borrow_records.book_id = books.book_id
+    JOIN readers ON borrow_records.reader_id = readers.reader_id
+    WHERE borrow_records.status = 'returnedQ'
+    LIMIT ? OFFSET ?;`
+    const page = req.query.page;
+    const size = req.query.size;
+    try {
+        const [result] = await conn.query(sql, [parseInt(size), parseInt(page - 1)])
+        obj.lists = result
+
+        response(obj, res)
     } catch (err) {
         console.log(err);
         response(err, res, '01')

@@ -7,6 +7,8 @@ import { LaptopOutlined, NotificationOutlined } from '@ant-design/icons';
 import BeforeEach from './beforEach'
 import Redirect from "./redirect";
 import BorrowedQ from "@/pages/book/borrowedQ";
+import BookReturnList from '@/pages/book/bookReturnList'
+
 
 export default [
     {
@@ -57,7 +59,7 @@ export default [
                 }
             }, {
                 path: 'returened',
-                element: <div>归还</div>,
+                element: <BeforeEach render={BookReturnList} />,
                 meta: {
                     name: '归还',
                 }

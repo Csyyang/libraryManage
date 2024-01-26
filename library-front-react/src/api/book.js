@@ -23,3 +23,13 @@ export const borrowConfirm = (data = {}) => request.post('/verify/admin/book/bor
 
 // 预约还书
 export const returnedQ = (data = {}) => request.post('/verify/book/returnedQ', data)
+
+// 归还审核列表
+export const returnConfirmList = (data = {}) => request.get('/verify/admin/book/returnConfirmList', {
+    params: data
+})
+
+// 归还通过
+export const returnConfirm = (data = {}) => request.post('/verify/admin/book/returnConfirm', data)
+
+
