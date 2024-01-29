@@ -237,8 +237,6 @@ router.get('/returnConfirmList', [
     }
 })
 
-
-
 // 借用确认
 router.post('/borrowConfirm', [
     body('record_id').notEmpty().withMessage('参数异常')
@@ -265,6 +263,59 @@ router.post('/borrowConfirm', [
         return
     }
 })
+
+// 借阅拒绝
+router.post('/borrowRefuse', [
+    body('record_id').notEmpty().withMessage('参数异常'),
+    body('book_id').notEmpty().withMessage('参数异常')
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return response(errors.array(), res, '01')
+    }
+
+    const body = req.body
+    const connection = await conn.getConnection();
+
+    try {
+        // 开始事务
+        await connection.beginTransaction();
+
+        console.log(body.record_id)
+
+        const sql = `UPDATE borrow_records SET status = 'borrowRefuse' WHERE record_id = '${body.record_id}';`
+
+        const [result] = await connection.query(sql);
+
+        if (result.affectedRows === 0) {
+            await connection.rollback();
+            throw new Error('参数异常')
+        }
+
+        const [inventory] = await connection.query(
+            `UPDATE book_inventory SET lend = lend - 1,remaining = quantity - lend  WHERE book_id =  ${body.book_id}`
+        );
+
+        if (inventory.affectedRows === 0) {
+            await connection.rollback();
+            throw new Error('update book_inventory fail')
+        }
+
+        response('归还成功', res)
+        // 提交事务
+        await connection.commit();
+    } catch (error) {
+        console.log('error')
+        console.log(error)
+        // 出现错误时回滚事务
+        await connection.rollback();
+        response(error.toString(), res, '01')
+    } finally {
+        // 释放连接
+        connection.release();
+    }
+})
+
 // 归还确认
 router.post('/returnConfirm', [
     body('record_id').notEmpty().withMessage('参数异常'),
@@ -280,10 +331,6 @@ router.post('/returnConfirm', [
     const connection = await conn.getConnection();
 
     try {
-
-        //查询当前状态是否为returnedQ
-
-
         // 开始事务
         await connection.beginTransaction();
 
@@ -323,8 +370,57 @@ router.post('/returnConfirm', [
     }
 })
 
+// 归还拒绝
+router.post('/returnRefuse', [
+    body('record_id').notEmpty().withMessage('参数异常'),
+    body('book_id').notEmpty().withMessage('参数异常')
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return response(errors.array(), res, '01')
+    }
 
+    const body = req.body
+    const connection = await conn.getConnection();
 
+    try {
+        // 开始事务
+        await connection.beginTransaction();
+
+        console.log(body.record_id)
+
+        const sql = `UPDATE borrow_records SET status = 'returnRefuse' WHERE record_id = '${body.record_id}';`
+
+        const [result] = await connection.query(sql);
+
+        if (result.affectedRows === 0) {
+            await connection.rollback();
+            throw new Error('参数异常')
+        }
+
+        const [inventory] = await connection.query(
+            `UPDATE book_inventory SET lend = lend - 1,remaining = quantity - lend  WHERE book_id =  ${body.book_id}`
+        );
+
+        if (inventory.affectedRows === 0) {
+            await connection.rollback();
+            throw new Error('update book_inventory fail')
+        }
+
+        response('归还成功', res)
+        // 提交事务
+        await connection.commit();
+    } catch (error) {
+        console.log('error')
+        console.log(error)
+        // 出现错误时回滚事务
+        await connection.rollback();
+        response(error.toString(), res, '01')
+    } finally {
+        // 释放连接
+        connection.release();
+    }
+})
 
 
 // 设置 Multer 中间件，用于处理上传的文件
@@ -364,13 +460,38 @@ router.post('/warehousing', upload.single('excelFile'), async (req, res) => {
             const connection = await conn.getConnection();
             try {
                 for (let item of result[0].data) {
+                    console.log(item)
                     const sql = `SELECT * FROM books WHERE isbn = ?`
-                    const [result] = await conn.query(sql, [item[0]])
+                    const [sqlRes] = await conn.query(sql, [item[0]])
                     // response(result, res)
 
-                    if (result.length > 0) {
-                        await conn.query(`UPDATE book_inventory SET quantity = quantity + ?,remaining = remaining + ?  WHERE book_id = ?;`, [item[5], item[5], result[0].book_id])
+                    if (sqlRes.length > 0) {
+                        await conn.query(`UPDATE book_inventory SET quantity = quantity + ?,remaining = remaining + ?  WHERE book_id = ?;`, [item[5], item[5], sqlRes[0].book_id])
+                    } else {
+                        // 设置新的 book 信息
+                        const newTitle = '新书标题';
+                        const newAuthor = '新书作者';
+                        const newPublisher = '新书出版社';
+                        const newIsbn = '新书的ISBN';
+                        const newCategoryName = '新的分类名称';
 
+                        // 判断是否存在对应的 category_name
+                        const [rows] = await transaction.execute('SELECT category_id FROM book_categories WHERE category_name = ?', [newCategoryName]);
+                        let categoryId = rows.length > 0 ? rows[0].category_id : null;
+
+                        // 如果不存在，创建新的 book_categories 记录
+                        if (!categoryId) {
+                            const [insertResult] = await transaction.execute('INSERT INTO book_categories (category_name) VALUES (?)', [newCategoryName]);
+                            categoryId = insertResult.insertId;
+                        }
+
+                        // 插入新的记录到 books 表
+                        await transaction.execute('INSERT INTO books (title, author, publisher, isbn, category_id) VALUES (?, ?, ?, ?, ?)', [newTitle, newAuthor, newPublisher, newIsbn, categoryId]);
+
+                        // 提交事务
+                        await transaction.commit();
+
+                        console.log('New book inserted successfully!');
                     }
                 }
 
@@ -392,6 +513,5 @@ router.post('/warehousing', upload.single('excelFile'), async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 })
-
 
 module.exports = router

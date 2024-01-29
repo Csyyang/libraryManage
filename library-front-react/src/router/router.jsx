@@ -71,7 +71,7 @@ export default [
         path: '/test',
         element: <Layout />,
         meta: {
-            name: '测试',
+            name: '库存管理',
             icon: NotificationOutlined,
             isAdmin: true
         },
@@ -80,7 +80,7 @@ export default [
                 path: 'testChild',
                 element: <div>test</div>,
                 meta: {
-                    name: '测试1',
+                    name: '库存',
                 }
             }
         ]

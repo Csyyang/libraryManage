@@ -1,4 +1,4 @@
-import { borrowRecordQ, borrowConfirm } from "@/api/book"
+import { borrowRecordQ, borrowConfirm, borrowRefuse } from "@/api/book"
 import { useState } from "react"
 import { useEffect } from "react"
 import { Table, Button, message } from 'antd'
@@ -42,6 +42,22 @@ const BorrowedQ = () => {
 
     }
 
+
+    const refuse = async ({ record_id, book_id }) => {
+        await borrowRefuse({
+            record_id,
+            book_id
+        })
+
+        message.success('操作成功')
+
+        setPage({
+            total: 0,
+            size: 10,
+            page: 1
+        })
+    }
+
     const columns = [
         {
             title: '书名',
@@ -70,16 +86,12 @@ const BorrowedQ = () => {
                 return (
                     <div>
                         <Button type="link" onClick={() => aggre(columns)}>同意</Button>
-                        <Button type="link" onClick={() => {
-                            // props.changChosed(columns.key)
-                            // props.setIsModalOpen(true)
-                        }}>拒绝</Button>
+                        <Button type="link" onClick={() => refuse(columns)}>拒绝</Button>
                     </div>
                 )
             }
         }
     ]
-
 
     useEffect(() => {
         getList()

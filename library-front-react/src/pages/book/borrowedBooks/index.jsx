@@ -100,7 +100,10 @@ const Tables = ({ dataSource, total, setPaging, setTotal }) => {
                         return <Tag key={tags.key} color="cyan">已归还</Tag>
                     case 'returnedQ':
                         return <Tag key={tags.key} color="green">归还审核中</Tag>
-
+                    case 'borrowRefuse':
+                        return <Tag key={tags.key} color="red">借阅申请被拒绝</Tag>
+                    case 'returnRefuse':
+                        return <Tag key={tags.key} color="red">归还被拒绝</Tag>
                 }
             }
         },

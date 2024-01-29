@@ -33,3 +33,10 @@ export const returnConfirmList = (data = {}) => request.get('/verify/admin/book/
 export const returnConfirm = (data = {}) => request.post('/verify/admin/book/returnConfirm', data)
 
 
+// 预约拒绝
+export const borrowRefuse = (data = {}) => request.post('/verify/admin/book/borrowRefuse', data)
+
+// 归还拒绝
+export const returnRefuse = (data = {}) => request.post('/verify/admin/book/returnRefuse', data)
+
+

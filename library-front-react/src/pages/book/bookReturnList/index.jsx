@@ -1,4 +1,4 @@
-import { returnConfirmList, returnConfirm } from "@/api/book"
+import { returnConfirmList, returnConfirm, returnRefuse } from "@/api/book"
 import { useState } from "react"
 import { useEffect } from "react"
 import { Table, Button, message } from 'antd'
@@ -28,7 +28,6 @@ const BorrowedQ = () => {
     }
 
     const aggre = async ({ record_id, book_id }) => {
-        console.log(columns)
         await returnConfirm({
             record_id,
             book_id
@@ -40,7 +39,21 @@ const BorrowedQ = () => {
             size: 10,
             page: 1
         })
+    }
 
+    const refuse = async ({ record_id, book_id }) => {
+        await returnRefuse({
+            record_id,
+            book_id
+        })
+
+        message.success('操作成功')
+
+        setPage({
+            total: 0,
+            size: 10,
+            page: 1
+        })
     }
 
     const columns = [
@@ -71,10 +84,7 @@ const BorrowedQ = () => {
                 return (
                     <div>
                         <Button type="link" onClick={() => aggre(columns)}>同意</Button>
-                        <Button type="link" onClick={() => {
-                            // props.changChosed(columns.key)
-                            // props.setIsModalOpen(true)
-                        }}>拒绝</Button>
+                        <Button type="link" onClick={() => refuse(columns)}>拒绝</Button>
                     </div>
                 )
             }
