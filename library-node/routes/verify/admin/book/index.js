@@ -517,6 +517,31 @@ router.post('/warehousing', upload.single('excelFile'), async (req, res) => {
     }
 })
 
+
+// 编辑单条库存
+router.post('/editItem', [
+    body('book_id').notEmpty().withMessage('参数异常'),
+    body('quantity').notEmpty().withMessage('参数异常')
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return response(errors.array(), res, '01')
+    }
+
+    const body = req.body
+    const connection = await conn.getConnection();
+
+    try {
+        await connection.execute('UPDATE book_inventory SET quantity = ?,remaining = quantity - lend WHERE book_id = ?', [body.quantity, body.book_id]);
+
+        response('修改成功', res)
+    } catch (error) {
+        console.log(error)
+        response({}, res, '01')
+        return
+    }
+})
+
 // // 入库模板下载
 // router.get('/dowdload', async(req,res) => {
 

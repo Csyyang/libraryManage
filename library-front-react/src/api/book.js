@@ -50,3 +50,7 @@ export const uploadExcl = (formData) => request.post('/verify/admin/book/warehou
         'Content-Type': 'multipart/form-data'
     }
 })
+
+// 
+
+export const editItem = (data) => request.post('/verify/admin/book/editItem', data)

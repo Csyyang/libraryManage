@@ -1,6 +1,6 @@
 import { Button, Modal, Steps, Upload, message, Table, Form, Input } from 'antd'
 import styles from './index.module.css'
-import { downLoadExcl, uploadExcl, getBookList } from '@/api/book'
+import { downLoadExcl, uploadExcl, getBookList, editItem } from '@/api/book'
 import { useEffect, useCallback, useState } from 'react'
 
 // 批量导入
@@ -124,8 +124,8 @@ const Tables = ({ paging, setPaging, dataSource, setDataSource, total, setTotal,
         },
         {
             title: '库存',
-            dataIndex: 'remaining',
-            key: 'remaining',
+            dataIndex: 'quantity',
+            key: 'quantity',
         },
         {
             title: '操作',
@@ -165,10 +165,16 @@ const Tables = ({ paging, setPaging, dataSource, setDataSource, total, setTotal,
 
 
 // 编辑
-const EditItem = ({ open, setOpen, initialValues }) => {
+const EditItem = ({ open, setOpen, initialValues, initSearch }) => {
 
+    const [form] = Form.useForm();
     const handleOk = () => {
-
+        const obj = form.getFieldsValue()
+        obj.book_id = initialValues.key
+        editItem(obj)
+        message.success('修改成功')
+        initSearch()
+        setOpen(false)
     }
 
     const handleCancel = () => {
@@ -178,6 +184,7 @@ const EditItem = ({ open, setOpen, initialValues }) => {
     return (
         <Modal title="编辑" open={open} onOk={handleOk} onCancel={handleCancel}>
             <Form
+                form={form}
                 initialValues={initialValues}
                 name="basic"
                 labelCol={{
@@ -245,7 +252,7 @@ const EditItem = ({ open, setOpen, initialValues }) => {
 
                 <Form.Item
                     label="库存"
-                    name="remaining"
+                    name="quantity"
                     rules={[
                         {
                             required: true,
@@ -303,7 +310,8 @@ const Manage = () => {
     const editProps = {
         open,
         setOpen,
-        initialValues
+        initialValues,
+        initSearch
     }
 
     return (
