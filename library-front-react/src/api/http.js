@@ -36,13 +36,18 @@ instance.interceptors.response.use(
       message.info(JSON.stringify(data.msg))
 
     }
+
+    if (response.config.responseType === 'blob') {
+      return data
+    }
+    
     throw response;
   },
   error => {
     // 对响应错误做些什么
     console.log('捕获')
     if (error.response.data.errors === "未登录") {
-      window.location.replace ("/login") 
+      window.location.replace("/login")
     }
     return Promise.reject(error);
   }

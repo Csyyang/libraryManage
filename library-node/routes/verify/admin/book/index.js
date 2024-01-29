@@ -469,27 +469,30 @@ router.post('/warehousing', upload.single('excelFile'), async (req, res) => {
                         await conn.query(`UPDATE book_inventory SET quantity = quantity + ?,remaining = remaining + ?  WHERE book_id = ?;`, [item[5], item[5], sqlRes[0].book_id])
                     } else {
                         // 设置新的 book 信息
-                        const newTitle = '新书标题';
-                        const newAuthor = '新书作者';
-                        const newPublisher = '新书出版社';
-                        const newIsbn = '新书的ISBN';
-                        const newCategoryName = '新的分类名称';
+                        const newTitle = item[1];
+                        const newAuthor = item[2];
+                        const newPublisher = item[4];
+                        const newIsbn = item[0];
+                        const newCategoryName = item[3];
 
                         // 判断是否存在对应的 category_name
-                        const [rows] = await transaction.execute('SELECT category_id FROM book_categories WHERE category_name = ?', [newCategoryName]);
+                        const [rows] = await connection.execute('SELECT category_id FROM book_categories WHERE category_name = ?', [newCategoryName]);
                         let categoryId = rows.length > 0 ? rows[0].category_id : null;
 
                         // 如果不存在，创建新的 book_categories 记录
                         if (!categoryId) {
-                            const [insertResult] = await transaction.execute('INSERT INTO book_categories (category_name) VALUES (?)', [newCategoryName]);
+                            const [insertResult] = await connection.execute('INSERT INTO book_categories (category_name) VALUES (?)', [newCategoryName]);
                             categoryId = insertResult.insertId;
                         }
 
                         // 插入新的记录到 books 表
-                        await transaction.execute('INSERT INTO books (title, author, publisher, isbn, category_id) VALUES (?, ?, ?, ?, ?)', [newTitle, newAuthor, newPublisher, newIsbn, categoryId]);
-
+                        const [booksResult] = await connection.execute('INSERT INTO books (title, author, publisher, isbn, category_id) VALUES (?, ?, ?, ?, ?)', [newTitle, newAuthor, newPublisher, newIsbn, categoryId]);
+                        console.log(booksResult)
+                        book_id = booksResult.insertId
+                        console.log(book_id)
+                        await connection.execute('INSERT INTO book_inventory (book_id,quantity, lend, remaining) VALUES (?, ?, ?, ?)', [book_id, item[5], 0, item[5]]);
                         // 提交事务
-                        await transaction.commit();
+                        await connection.commit();
 
                         console.log('New book inserted successfully!');
                     }
@@ -499,10 +502,10 @@ router.post('/warehousing', upload.single('excelFile'), async (req, res) => {
 
             } catch (err) {
                 console.log('error')
-                console.log(error)
+                console.log(err)
                 // 出现错误时回滚事务
                 await connection.rollback();
-                response(error.toString(), res, '01')
+                response(err.toString(), res, '01')
             } finally {
                 // 释放连接
                 connection.release();
@@ -513,5 +516,10 @@ router.post('/warehousing', upload.single('excelFile'), async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 })
+
+// // 入库模板下载
+// router.get('/dowdload', async(req,res) => {
+
+// })
 
 module.exports = router

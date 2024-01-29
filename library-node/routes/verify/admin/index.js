@@ -39,16 +39,21 @@ router.get('/downLoadExcl', [
         return response(errors.array(), res, '01')
     }
 
-    const filePath = path.join(__dirname, '../../../public/excel/excleTemplate.xlsx');
+    if (req.query.type === 'book') {
+        const filePath = path.join(__dirname, '../../../public/excel/excleTemplate.xlsx');
 
-    // 读取 Excel 文件内容
-    const excelBuffer = await fs.readFile(filePath);
+        // 读取 Excel 文件内容
+        const excelBuffer = await fs.readFile(filePath);
 
-    // 设置响应头，告诉浏览器返回的是 Excel 文件
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', 'attachment; filename=downloaded-file.xlsx');
+        // 设置响应头，告诉浏览器返回的是 Excel 文件
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename=downloaded-file.xlsx');
 
-    // 发送 Excel 文件内容
-    res.send(excelBuffer);
+        // 发送 Excel 文件内容
+        res.send(excelBuffer);
+    } else {
+        res.end()
+    }
 })
+
 module.exports = router

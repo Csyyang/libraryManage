@@ -15,10 +15,8 @@ router.use('/', (req, res, next) => {
     }
 })
 
-
 // 普通路由
 router.use('/', normal)
-
 // 超级管理路由
 router.use('/suadmin', suadmin)
 // 管理员路由

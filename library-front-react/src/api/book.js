@@ -39,4 +39,14 @@ export const borrowRefuse = (data = {}) => request.post('/verify/admin/book/borr
 // 归还拒绝
 export const returnRefuse = (data = {}) => request.post('/verify/admin/book/returnRefuse', data)
 
+// 下载模板
+export const downLoadExcl = () => request.get('/verify/admin/downLoadExcl?type=book', {
+    responseType: 'blob'
+})
 
+// 上传模板
+export const uploadExcl = (formData) => request.post('/verify/admin/book/warehousing', formData, {
+    headers: {
+        'Content-Type': 'multipart/form-data'
+    }
+})
