@@ -1,0 +1,12 @@
+.marR {
+    margin-right: 12px;
+}
+
+.downLoad {
+    margin-top: 12px;
+    text-align: center;
+    border: 1px dotted #cbcbcb;
+    line-height: 250px;
+    border-radius: 5px;
+    cursor: pointer;
+}

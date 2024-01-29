@@ -8,6 +8,7 @@ import BeforeEach from './beforEach'
 import Redirect from "./redirect";
 import BorrowedQ from "@/pages/book/borrowedQ";
 import BookReturnList from '@/pages/book/bookReturnList'
+import Manage from "@/pages/inventory/manager";
 
 
 export default [
@@ -68,19 +69,20 @@ export default [
 
     },
     {
-        path: '/test',
+        path: '/inventory',
         element: <Layout />,
         meta: {
-            name: '库存管理',
+            name: '库存',
             icon: NotificationOutlined,
             isAdmin: true
         },
         children: [
             {
-                path: 'testChild',
-                element: <div>test</div>,
+                path: 'manage',
+                element: <BeforeEach render={Manage} />,
                 meta: {
-                    name: '库存',
+                    name: '库存管理',
+                    isAdmin: true
                 }
             }
         ]
